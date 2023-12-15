@@ -14,7 +14,7 @@ Add package to your dependencies in **pubspec.yaml**:
 
 ```yaml
 dependencies:
-   accountmanager: ^0.3.0
+   accountmanager: ^0.3.2
 ```
 
 And call `flutter pub get` to download new dependencies
@@ -201,7 +201,7 @@ The following assumes you want to sync contacts, swap in the calendar or your cu
 Create **SyncAdapter.kt**
 
 ```kotlin
-package com.audriga.contacts_and_accounts_demo
+package com.example.yourapp
 
 import android.accounts.Account
 import android.accounts.AccountManager
@@ -275,7 +275,7 @@ class SyncAdapter @JvmOverloads constructor(
                     val entryPoint = DartExecutor.DartEntrypoint(flutterLoader.findAppBundlePath(), "backgroundServiceCallback")
                     engine.dartExecutor.executeDartEntrypoint(entryPoint)
                     // TODO Change the method channel name to the channel name you want to use for your sync
-                    val localMethodChannel = MethodChannel(engine.dartExecutor.binaryMessenger, "com.audriga.contacts_and_accounts_demo/bgsync")
+                    val localMethodChannel = MethodChannel(engine.dartExecutor.binaryMessenger, "com.example.yourapp/bgsync")
                     // TODO Customize the data you send to flutter
                     val dartArgs = hashMapOf(
                         "NAME" to account.name,
@@ -300,7 +300,7 @@ class SyncAdapter @JvmOverloads constructor(
 
 create **SyncService.kt** 
 ```kotlin
-package com.audriga.contacts_and_accounts_demo
+package com.example.yourapp
 
 import android.app.Service
 import android.content.Intent
@@ -358,7 +358,7 @@ Sync Adapter Metadata file **xml/syncadapter.xml**
 ```xml
 <sync-adapter xmlns:android="http://schemas.android.com/apk/res/android"
     android:contentAuthority="com.android.contacts"
-    android:accountType="com.audriga.contacts_and_accounts_demo"
+    android:accountType="<YOUR_ACCOUNT_TYPE>"
     android:userVisible="true"
     android:allowParallelSyncs="true"
     android:supportsUploading="true" />
@@ -391,14 +391,35 @@ and if you use an existing content provider like contacts or calendar add permis
 
 When adding the account via `AccountManager.addAccount` don't forget to specify the authority of the content provider you are syncing.
 
+And below your main function add
+
+```dart
+
+@pragma('vm:entry-point')
+void backgroundServiceCallback() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  const platform = MethodChannel('com.example.yourapp/bgsync');
+  platform.setMethodCallHandler((call) async {
+    // TODO Place the code that should be called on sync here
+  });
+}
+```
+
+
+
+
+
 ##### Add Account from Settings
 In order to enable adding an account from settings, add the following code snippet to your **MainActivity.kt** in the `configureFlutterEngine` function
 ```kotlin
-if (intent.extras?.containsKey("isAddingNewAccount") == true) {
-    MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "accountManager/addAccountCallback").invokeMethod("addAccount", intent.extras.toString())
+override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+    super.configureFlutterEngine(flutterEngine)
+    if (intent.extras?.containsKey("isAddingNewAccount") == true) {
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "accountManager/addAccountCallback").invokeMethod("addAccount", intent.extras.toString())
+    }
 }
 ```
-And early in your **main.dart** (for example in an overridden `initStte` of your homepage) add a callback of what is supposed to happen when the app gets opened by an "add Account" context.
+And early in your **main.dart** (for example in an overridden `initState` of your homepage) add a callback of what is supposed to happen when the app gets opened by an "add Account" context.
 ```dart
 AccountManager.setAddAccountCallback((call) {
   // Add your custom callback code here, for example

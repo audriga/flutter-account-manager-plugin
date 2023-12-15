@@ -1,16 +1,26 @@
-package com.contedevel.accountmanager_example;
+package com.contedevel.accountmanager_example
 
-import android.app.Service;
-import android.content.Intent;
-import android.os.IBinder;
+import android.app.Service
+import android.content.Intent
+import android.os.IBinder
 
-import androidx.annotation.Nullable;
+/**
+ * A bound Service that instantiates the authenticator
+ * when started.
+ */
+class AuthenticatorService : Service() {
 
-public class AuthenticatorService extends Service {
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        Authenticator authenticator = new Authenticator(this);
-        return authenticator.getIBinder();
+    // Instance field that stores the authenticator object
+    private lateinit var mAuthenticator: Authenticator
+
+    override fun onCreate() {
+        // Create a new authenticator object
+        mAuthenticator = Authenticator(this)
     }
+
+    /**
+     * When the system binds to this Service to make the RPC call
+     * return the authenticator's IBinder.
+     */
+    override fun onBind(intent: Intent?): IBinder = mAuthenticator.iBinder
 }

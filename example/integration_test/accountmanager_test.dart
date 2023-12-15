@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:accountmanager/accountmanager.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -35,9 +37,9 @@ void main() {
 
     success = await AccountManager.removeAccount(account);
     expect(success, true);
-  });
+  }, skip: !Platform.isAndroid);
   
-  group('Can add an read properties', () {
+  group('Can add and read properties', () {
     setUp(() async {
       var account = Account(name: 'testAccount', accountType:  testAccountType);
       await AccountManager.addAccount(account);

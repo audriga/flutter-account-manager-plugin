@@ -9,6 +9,9 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <!-- Only needed if you sync contacts with this. Use corresponding different permission if you sync some other content provider or leave it out if you don't use sync-->
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
     <application
         android:name="${applicationName}"
         android:label="accountmanager_example"
@@ -50,6 +53,21 @@
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator"/>
+        </service>
+        <!-- The following service is only needed if you use sync -->
+        <service
+            android:name=".SyncService"
+            android:exported="true"
+            android:process=":sync">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter"/>
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter"
+                android:resource="@xml/syncadapter" />
+            <!-- if you sync contacts you have to create and link a structure for see https://developer.android.com/guide/topics/providers/contacts-provider#ContactsFile and https://github.com/bitfireAT/davx5-ose/blob/dev-ose/app/src/main/res/xml/contacts.xml-->
+            <meta-data
+                android:name="android.provider.CONTACTS_STRUCTURE"
+                android:resource="@xml/contacts"/>
         </service>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

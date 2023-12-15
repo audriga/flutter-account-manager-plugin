@@ -1,0 +1,9 @@
+<!-- Only needed if you use sync -->
+<sync-adapter xmlns:android="http://schemas.android.com/apk/res/android"
+    android:contentAuthority="com.android.contacts"
+    android:accountType="com.contedevel.account"
+    android:userVisible="true"
+    android:allowParallelSyncs="true"
+    android:supportsUploading="true" />
+
+    <!-- Swap the content provider string to what you need, like "com.android.calendar" or your custom authority, so it would read android:contentAuthority="com.domain.yourapp.provider"-->
