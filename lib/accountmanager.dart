@@ -10,6 +10,16 @@ class Account {
     required this.name,
     required this.accountType,
   });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Account &&
+          name == other.name &&
+          accountType == other.accountType;
+
+  @override
+  int get hashCode => name.hashCode ^ accountType.hashCode;
 }
 
 class AccessToken {
@@ -42,6 +52,7 @@ class AccountManager {
   static const String _Sync_Content_Authorities = 'sync_content_authorities';
 
 
+  /// Set the callback to be executed when the app gets opened (by settings app) with an AddAccount Intent
   static void setAddAccountCallback(Future<dynamic> Function(MethodCall call)? handler){
     const platform = MethodChannel('accountManager/addAccountCallback');
     platform.setMethodCallHandler(handler);
