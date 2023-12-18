@@ -3,10 +3,10 @@ description: Demonstrates how to use the accountmanager plugin.
 publish_to: 'none'
 
 environment:
-  sdk: ">=2.14.0 <=2.18.0"
+  sdk: ">=2.14.0 <3.0.0"
 
 dependencies:
-  permission_handler: ^10.0.0
+  permission_handler: ^10.2.0
   webview_flutter: ^3.0.4
   http: ^0.13.5
   flutter:
@@ -22,6 +22,8 @@ dependencies:
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
 
 # For information on the generic Dart part of this file, see the
