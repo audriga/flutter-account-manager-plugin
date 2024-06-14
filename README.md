@@ -33,10 +33,6 @@ Unchanged from original project, currently limited featureset.
 
 
 
-[TOC]
-
-
-
 ## Getting Started
 
 ### Installation
