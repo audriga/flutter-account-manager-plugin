@@ -1,31 +1,74 @@
 # Account manager
 
-Account manager for Flutter
+Account manager for Flutter. Fork of https://github.com/Klein-Stein/flutter-account-manager-plugin
 
-Supported platforms:
+We recommend familiarizing yourself with the corresponding Android concept: https://developer.android.com/reference/android/accounts/AccountManager
+
+## Features
+
+### Android
+
+- Add/ remove accounts to the Android System
+- Set and get access token for an account the app owns
+- Set and get secret userdata (Map) for an account the app owns (Set only at account creation time)
+- Set and get password for an account the app owns (Set only at account creation time)
+- Hook for adding an account via the settings (setAddAccountCallback)
+- Sync features [Requires Additional Setup]
+  - Can set whether an account is syncable for a given autority (=  Content Provider Authorities, such as for contact or calender sync)
+  - Can also set whether the synced is performed automatically
+  - User can set callback function that will be called periodically by android system
+
+### iOS
+
+Unchanged from original project, currently limited featureset.
+
+**WARNING:** iOS doesn't provide AccountManager entity, the plugin emulates it using `UserDefaults.standard` to store all data.
+
+
+
+## Supported platforms:
+
 - Android 8.1+ (API 27+)
 - iOS 12+
+
+
+
+[TOC]
+
+
 
 ## Getting Started
 
 ### Installation
 
-Add package to your dependencies in **pubspec.yaml**:
+Add this package to your dependencies in **pubspec.yaml**. On Android and iOS devices you also need to request permissions at the runtime. We advice to 
+use [permission_handler](https://pub.dev/packages/permission_handler).
 
 ```yaml
 dependencies:
-   accountmanager: ^0.3.2
+  accountmanager:
+    git:
+      url: https://github.com/audriga/flutter-account-manager-plugin.git
+      ref: master
+  permission_handler: ^10.2.0
 ```
 
 And call `flutter pub get` to download new dependencies
 
-### Using
+### Usage
 
 To import module add `import 'package:accountmanager/accountmanager.dart';` at the 
 import block in your code.
 
-At this moment plugin can work with Android OS API 27+ and iOS 12+ only. To allow plugin to manage 
-accounts you need to add few native code for Android:  
+The Class `Account` represents one Account. On Android the combination of Account Name and Account Type uniquely identifies an account.
+
+See the Functions in lib/accountmanager.dart for documentation on the individual API functions.
+
+### Required Setup
+
+To allow the plugin to manage accounts you will need to add at least one custom account type, by implementing a corresponding authenticator. You will also need to set the corresponding permissions in AndroidManifest.xml.
+
+ You can do so by adding the following boilerplate native code for Android:  
 
 1. Create **xml/authenticator.xml** resource in your Android project folder with next content:  
 ```xml
@@ -35,7 +78,7 @@ accounts you need to add few native code for Android:
      android:accountType="<YOUR_ACCOUNT_TYPE>"
      android:icon="<YOUR_ICON_48DP>"
      android:smallIcon="<YOUR_ICON_24DP>"
-     android:label="<YOUR_ACCOUNT_NAME>"/>
+     android:label="<YOUR_ACCOUNT_LABEL>"/>
 ```
 2. Implement `AbstractAccountAuthenticator` stub (see also https://developer.android.com/training/sync-adapters/creating-authenticator):  
 
@@ -50,7 +93,7 @@ class Authenticator(private val mContext: Context) // Simple constructor
     }
 
     /**
-    // Don't add additional accounts
+    // Use this if you don't want to support adding accounts from Settings
     @Throws(NetworkErrorException::class)
     override fun addAccount(
         r: AccountAuthenticatorResponse,
@@ -175,27 +218,15 @@ And register `AuthenticatorService`:
 </service>
 ```
 
-On Android and iOS devices you also need to request permissions at the runtime. We advice to 
-use [permission_handler](https://pub.dev/packages/permission_handler) (the example of using in our 
-repository).
-
-```
-dependencies:
-  permission_handler: ^10.0.0
-```
-
 More details about Android authentication system you can find on 
 [Android Developers resource](https://developer.android.com/training/id-auth/custom_auth).
 
-**WARNING:** iOS doesn't provide AccountManager entity, our plugin emulates it using 
-`UserDefaults.standard` to store all data.
+### Optional Steps
 
-#### Optional Steps
-
-##### Enable Sync for the account
+#### Enable Sync for the account
 This follows https://developer.android.com/training/sync-adapters/
 You have already created a (stub) authenticator and if you plan on syncing contacts or calendars, use their corresponding content providers and skip the (stub) content provider step.
-The following assumes you want to sync contacts, swap in the calendar or your custom content provider where necessary if you want t sync those things instead.
+The following assumes you want to sync contacts, swap in the calendar or your custom content provider where necessary if you want to sync those things instead.
 (To sync multiple content types it is possible to create multiple sync adapters, see https://stackoverflow.com/a/31161106).
 
 Create **SyncAdapter.kt**
@@ -409,7 +440,7 @@ void backgroundServiceCallback() async {
 
 
 
-##### Add Account from Settings
+#### Add Account from Settings
 In order to enable adding an account from settings, add the following code snippet to your **MainActivity.kt** in the `configureFlutterEngine` function
 ```kotlin
 override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -430,7 +461,7 @@ AccountManager.setAddAccountCallback((call) {
 });
 ```
 
-##### Preference Screen
+#### Preference Screen
 If you want users to be able to get to your app (Ideally the account settings route) you can add the line `android:accountPreferences="@xml/sync_prefs"` to `account-authenticator` in **xml/authenticator.xml**
 And create **xml/sync_prefs.xml** with the following content:
 ```xml
