@@ -31,6 +31,9 @@ Unchanged from original project, currently limited featureset.
 - Android 8.1+ (API 27+)
 - iOS 12+
 
+## Example Apps
+
+In addition to the example app in the example folder, we also provide an elaborate demonstration app that showcases the features of this plugin, and combination with [flutter_contacts](https://github.com/audriga/flutter_contacts) at [flutter_contacts_and_accounts_demo](https://github.com/audriga/flutter_contacts_and_accounts_demo).
 
 
 ## Getting Started
